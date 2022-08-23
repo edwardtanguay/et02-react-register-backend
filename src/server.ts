@@ -14,7 +14,7 @@ interface IUser {
 
 const user: IUser = {
 	firstName: "Hendrick",
-	lastName: "Denzmann",
+	lastName: "Denzmann-heroku-test",
 	accessGroups: ['loggedInUsers', 'members']
 };
 
