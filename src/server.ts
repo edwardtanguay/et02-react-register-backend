@@ -44,12 +44,18 @@ app.post('/login', (req: express.Request, res: express.Response) => {
 	}
 });
 
-app.get('/current-user', (req, res) => {
+app.get('/current-user', (req: express.Request, res: express.Response) => {
 	if (req.session.user) {
 		res.send(req.session.user);
 	} else {
 		res.send('no user logged in');
 	}
+});
+
+app.get('/logout', (req: express.Request, res: express.Response) => {
+	req.session.destroy((err) => {
+		res.send('User logged out');
+	});
 });
 
 app.listen(PORT, () => {
