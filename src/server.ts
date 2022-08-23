@@ -1,13 +1,13 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import { getUsers } from './models.js'; 
+import { getUsers } from './models.js';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 
 declare module 'express-session' {
-  export interface SessionData {
-    user: { [key: string]: any };
-  }
+	export interface SessionData {
+		user: { [key: string]: any };
+	}
 }
 
 dotenv.config();
@@ -42,7 +42,15 @@ app.post('/login', (req: express.Request, res: express.Response) => {
 	} else {
 		res.status(500).send('bad login');
 	}
-})
+});
+
+app.get('/current-user', (req, res) => {
+	if (req.session.user) {
+		res.send(req.session.user);
+	} else {
+		res.send('no user logged in');
+	}
+});
 
 app.listen(PORT, () => {
 	console.log(`listening to API on http://localhost:${PORT}`);
