@@ -16,6 +16,7 @@ const app = express();
 const PORT = process.env.PORT || 3049;
 
 const users = getUsers();
+const loginSecondsMax = 10;
 
 app.use(
 	session({
@@ -27,35 +28,56 @@ app.use(
 app.use(cookieParser());
 app.use(express.json());
 
+const logAnonymousUserIn = (req: express.Request, res: express.Response) => {
+	const user = users.find((user) => user.username === 'anonymousUser');
+	if (user) {
+		req.session.user = user;
+		req.session.cookie.expires = new Date(Date.now() + loginSecondsMax * 1000);
+		req.session.save();
+		res.send({
+			"currentUser": user
+		});
+	} else {
+		res.status(500).send('bad login');
+	}
+}
+
+const logUserIn = (username: string, req: express.Request, res: express.Response) => {
+    let user = users.find((user) => user.username === username);
+    if (user) {
+        req.session.user = user;
+        req.session.cookie.expires = new Date(Date.now() + loginSecondsMax * 1000);
+        req.session.save();
+        res.send({
+            "currentUser": user
+        });
+    } else {
+        logAnonymousUserIn(req, res);
+    }
+}
+
 app.get('/', (req: express.Request, res: express.Response) => {
 	res.send(users);
 });
 
 app.post('/login', (req: express.Request, res: express.Response) => {
-	const username = req.body.username;
-	const user = users.find(m => m.username === username);
-	if (user) {
-		req.session.user = user;
-		req.session.cookie.expires = new Date(Date.now() + 10000);
-		req.session.save();
-		res.send(`User logged in : ${JSON.stringify(user)}`);
-	} else {
-		res.status(500).send('bad login');
-	}
+    const username = req.body.username;
+    logUserIn(username, req, res);
 });
 
 app.get('/current-user', (req: express.Request, res: express.Response) => {
-	if (req.session.user) {
-		res.send(req.session.user);
-	} else {
-		res.send('no user logged in');
-	}
+    const user = req.session.user;
+    if (user) {
+        res.send({
+            "currentUser": user
+        });
+    } else {
+        logAnonymousUserIn(req, res);
+    }
 });
 
 app.get('/logout', (req: express.Request, res: express.Response) => {
-	req.session.destroy((err) => {
-		res.send('User logged out');
-	});
+    logAnonymousUserIn(req, res);
 });
 
 app.listen(PORT, () => {
