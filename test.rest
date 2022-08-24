@@ -19,6 +19,14 @@ content-type: application/json
     "username": "an"
 }
 
+### BAD LOGIN 
+POST {{url}}/login
+content-type: application/json
+ 
+{
+    "username": "nnn"
+}
+
 ### GET CURRENT USER
 {{url}}/current-user
 

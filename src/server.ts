@@ -6,42 +6,57 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
 declare module 'express-session' {
-	export interface SessionData {
-		user: { [key: string]: any };
-	}
+    export interface SessionData {
+        user: { [key: string]: any };
+    }
 }
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3049;
+const PORT = process.env.PORT || 3047;
 
 const users = getUsers();
 const loginSecondsMax = 10;
 
-app.use(
-	session({
-		resave: true,
-		saveUninitialized: true,
-		secret: 'tempsecret'
-	})
-);
-app.use(cookieParser());
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:5174",
+    methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD'],
+    credentials: true
+}));
+app.use(cookieParser());
+app.use(
+    session({
+        resave: true,
+        saveUninitialized: true,
+        secret: 'tempsecret',
+        cookie: {
+            httpOnly: true,
+            sameSite: 'lax',
+            secure: false
+        }
+    })
+);
+
+app.all('/', (req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "http://localhost:5174");
+    res.header("Access-Control-Allow-Headers", "X-Requested-With");
+    next();
+});
 
 const logAnonymousUserIn = (req: express.Request, res: express.Response) => {
-	const user = users.find((user) => user.username === 'anonymousUser');
-	if (user) {
-		req.session.user = user;
-		req.session.cookie.expires = new Date(Date.now() + loginSecondsMax * 1000);
-		req.session.save();
-		res.send({
-			"currentUser": user
-		});
-	} else {
-		res.status(500).send('bad login');
-	}
+    const user = users.find((user) => user.username === 'anonymousUser');
+    if (user) {
+        req.session.user = user;
+        req.session.cookie.expires = new Date(Date.now() + loginSecondsMax * 1000);
+        req.session.save();
+        res.send({
+            "currentUser": user
+        });
+    } else {
+        res.status(500).send('bad login');
+    }
 }
 
 const logUserIn = (username: string, req: express.Request, res: express.Response) => {
@@ -59,7 +74,7 @@ const logUserIn = (username: string, req: express.Request, res: express.Response
 }
 
 app.get('/', (req: express.Request, res: express.Response) => {
-	res.send(users);
+    res.send(users);
 });
 
 app.post('/login', (req: express.Request, res: express.Response) => {
@@ -83,5 +98,5 @@ app.get('/logout', (req: express.Request, res: express.Response) => {
 });
 
 app.listen(PORT, () => {
-	console.log(`listening to API on http://localhost:${PORT}`);
+    console.log(`listening to API on http://localhost:${PORT}`);
 });
