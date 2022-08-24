@@ -21,7 +21,7 @@ const loginSecondsMax = 10;
 
 app.use(express.json());
 app.use(cors({
-    origin: "http://localhost:5174",
+    origin: "http://localhost:5173",
     methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD'],
     credentials: true
 }));
@@ -40,7 +40,7 @@ app.use(
 );
 
 app.all('/', (req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "http://localhost:5174");
+    res.header("Access-Control-Allow-Origin", "http://localhost:5173");
     res.header("Access-Control-Allow-Headers", "X-Requested-With");
     next();
 });
