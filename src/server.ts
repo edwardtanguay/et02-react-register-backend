@@ -33,8 +33,8 @@ app.use(
         secret: process.env.SESSION_SECRET,
         cookie: {
             httpOnly: true,
-            sameSite: process.env.NODE_ENV === 'prodcution' ? 'none' : 'lax',
-            secure: process.env.NODE_ENV === 'prodcution'
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            secure: process.env.NODE_ENV === 'production'
         }
     })
 );
