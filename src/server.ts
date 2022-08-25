@@ -74,7 +74,7 @@ const logUserIn = (username: string, req: express.Request, res: express.Response
 }
 
 app.get('/', (req: express.Request, res: express.Response) => {
-    res.send(users);
+    res.send(`***${process.env.NODE_ENV}***`);
 });
 
 app.post('/login', (req: express.Request, res: express.Response) => {
